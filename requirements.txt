@@ -1,5 +1,5 @@
 mouse
-Pillow
 pyautogui
 openai
-clipman
+asyncio
+pytest-playwright

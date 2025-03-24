@@ -3,9 +3,9 @@ Let your glasses see for you!
 
 ## Installation
 - ``pip install -r requirements.txt``
+- ``playwright install``
 - Ensure you've setup your openai token as an environment variable (per official docs) OR just add it to main.py
 - Run main.py
-- Quickly tab over to a Messenger window with your bot account
 
 ## Usage
 - On the glasses, say "Hey meta, send a picture to [Account Name]"
@@ -14,3 +14,6 @@ Let your glasses see for you!
 
 ## Extra
 - If you'd like to have custom names for your AI, then create a group with the AI and one other, remove the other, then rename the group to whatever you'd like. Then you will be able to say "Hey meta, send a picture to [Group Name]".
+
+## Known Issues
+- Currently the mouse positioning is only for 1080p, otherwise you'll have to adjust. I will be fixing this very soon to not require any mouse movement or keyboard access.
