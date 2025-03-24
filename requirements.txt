@@ -1,0 +1,5 @@
+mouse
+Pillow
+pyautogui
+openai
+clipman

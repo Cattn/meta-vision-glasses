@@ -5,18 +5,18 @@ import pyautogui
 from openai import OpenAI
 import clipman
 
-client = OpenAI()
+client = OpenAI(api_key="YOUR_KEY_HERE")
 clipman.init()
 
 def take_screenshot():
     time.sleep(1)
-    mouse.move("650", "950", True, 0.4)
+    mouse.move("696", "950", True, 0.4)
     mouse.click()
     mouse.move("960", "540", True, 0.4)
     time.sleep(1)
     mouse.right_click()
     
-    mouse.move("10", "110", False, 1)
+    mouse.move("10", "128", False, 1)
     mouse.click()
 
     mouse.move("100", "300", True, 0.2)
@@ -34,14 +34,14 @@ def sendMessage(message):
 
 def process_screenshot_url(url):
     completion = client.chat.completions.create(
-        model="gpt-4o",
+        model="chatgpt-4o-latest",
         messages=[
             {
                 "role": "user",
                 "content": [
                     {
                         "type": "text",
-                        "text": "Try and find any text in the image. Once you do, if it's a long paragraph or text, summarize the key points of it."
+                        "text": "Try and find any text in the image. Once you do, if it's a long paragraph or text, summarize the key points of it. If there is no text, then ignore this and do not tell me that you found no text. If there is no descernable text, try and briefly describe the image, including any people, types of animals (give a guess to a breed if it is a cat or dog), or other info. Also provide any other helpful information."
                     },
                     {
                         "type": "image_url",
