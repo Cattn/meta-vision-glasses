@@ -7,8 +7,13 @@ import mouse
 import pyautogui
 from openai import OpenAI
 from playwright.async_api import async_playwright
+import html
 
-client = OpenAI(api_key="YOUR_API_KEY")
+mode = "image"
+global_browser = None
+last_image_url = None
+
+client = OpenAI(api_key="")
 
 # todo: rewrite nav, exit, send to use focus/playwright
 def nav_to_image():
@@ -21,40 +26,80 @@ def exit_image():
     mouse.click()
 
 def send_message(message):
-    print("sendMessage called")
-    mouse.move("850", "1020", True, 0.2)
-    mouse.click()
+    global mode
+    time.sleep(1.5)
+
+    pyautogui.click(x=850, y=1020)  
+    time.sleep(0.4)
+
+    if mode == "discord":
+        pyautogui.write(message, interval=0.02)
+        pyautogui.press('enter')
+        return
 
     lines = message.split('\n')
     for i, line in enumerate(lines):
         if line:
-            pyautogui.write(line, interval=random.uniform(0.0001, 0.0003))
+            pyautogui.write(line, interval=random.uniform(0.0005, 0.001))
         if i < len(lines) - 1:
             pyautogui.hotkey('shift', 'enter')
             time.sleep(0.003)
 
     pyautogui.press('enter')
+    time.sleep(1)
 
-async def handle_command(element):
+async def send_disc_message(person, message):
+    print("send_disc_message called")
+    if person.endswith("."):
+        person = person[:-1]
+    print(person)
+
+    disc_page = await global_browser.new_page()
+    
+    user_urls = {
+        
+    }
+
+    if person not in user_urls:
+        print(f"Unknown recipient: {person}")
+        return
+    
+    await disc_page.goto(user_urls[person])
+    await disc_page.wait_for_load_state('domcontentloaded')
+    
+    await asyncio.sleep(2)  
+
+    pyautogui.click(x=850, y=1020)  
+    time.sleep(0.5)
+
+    send_message(message)
+    await asyncio.sleep(1)
+    await disc_page.close()
+
+
+async def handle_command(command):
     try:
-        if await element.get_attribute("role") == "grid":
-            return True
-
-        a_selector = "div:nth-child(2) > div:nth-child(2) > div > div > span > div:nth-child(2) > div > div > a"
-        if await element.query_selector(a_selector):
-            return False
-
-        text_elements = await element.query_selector_all('div[dir="auto"][class*="x1yc453h"]')
-        for text_element in text_elements:
-            inner_text = (await text_element.inner_text()).strip()
-            if inner_text:
-                print(f"Found text: {inner_text}")
-                return True
-
-        return False
+        global mode
+        global last_image_url
+        print(command)
+        print(f"Mode: {mode}")
+        command_words = command.split(" ")
+        if command_words[-1].endswith("."):
+            command_words[-1] = command_words[-1][:-1]
+        command = " ".join(command_words)
+        if command.lower().startswith("switch mode to"):
+            mode = command.split(" ")[3]
+            print(f"Mode changed to {mode}")
+        if command.lower().startswith("send message to") and mode == "discord":
+            message = " ".join(command.split(" ")[4:])
+            message = html.unescape(message)
+            await send_disc_message(command.split(" ")[3].lower(), message)
+        if command.lower().startswith("send image to") and mode == "discord":
+            message = last_image_url
+            await send_disc_message(command.split(" ")[3].lower(), message)
     except Exception:
-        print("Failed to find text")
-        return True
+        print("Failed to process command")
+
 
 async def get_image_url(page):
     print("Getting image source")
@@ -68,6 +113,12 @@ async def get_image_url(page):
     return img_url
 
 async def process_image(latest_image, seen_images):
+    global mode
+    global last_image_url
+    if mode != "image":
+        last_image_url = latest_image
+        return
+    send_message("Testy/Placeholder")
     if latest_image and latest_image not in seen_images:
         seen_images.add(latest_image)
         completion = client.chat.completions.create(
@@ -99,10 +150,14 @@ async def main():
         browser = await p.chromium.launch_persistent_context(
             user_data_dir=user_data_dir,
             channel='chrome',
-            args=["--profile-directory=Profile 3"],
-            headless=False
+            args=["--profile-directory=Profile 1", "--start-maximized"],
+            headless=False,
+            no_viewport=True
         )
 
+        global global_browser
+        global_browser = browser
+        
         page = browser.pages[0] if browser.pages else await browser.new_page()
         await page.goto("https://www.messenger.com/t/9293726437413424")
         await page.wait_for_load_state('load')
@@ -139,9 +194,23 @@ async def main():
         request_processing_enabled = True
         print("Request processing now enabled.")
         print("Scanning for new images...")
+        selector = ".x1lliihq.x1plvlek.xryxfnj.x1n2onr6.x1ji0vk5.x18bv5gf.x193iq5w.xeuugli.x13faqbe.x1vvkbs.x1s928wv.xhkezso.x1gmr53x.x1cpjm7i.x1fgarty.x1943h6x.x1xmvt09.x6prxxf.x1fcty0u.xw2npq5.xudqn12.x3x7a5m.xq9mrsl"
 
+        selector = ".x1lliihq.x1plvlek.xryxfnj.x1n2onr6.x1ji0vk5.x18bv5gf.x193iq5w.xeuugli.x13faqbe.x1vvkbs.x1s928wv.xhkezso.x1gmr53x.x1cpjm7i.x1fgarty.x1943h6x.x1xmvt09.x6prxxf.x1fcty0u.xw2npq5.xudqn12.x3x7a5m.xq9mrsl"
+        
+        latest_inner_html = None
+        latest_element = None
+        
         while True:
-            await asyncio.sleep(2) # can be changed, prob isn't needed bec glasses are slow
-
+            await asyncio.sleep(1)  # wait for 1 second before checking for new elements
+            new_elements = await page.query_selector_all(selector)
+            if new_elements:
+                latest_element = new_elements[-1]  # get the most recent element
+                child_div = await latest_element.query_selector("div")
+                if child_div:
+                    inner_html = await child_div.inner_html()
+                    if inner_html != latest_inner_html:
+                        latest_inner_html = inner_html
+                        await handle_command(inner_html)
 if __name__ == "__main__":
     asyncio.run(main())
