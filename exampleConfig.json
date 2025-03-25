@@ -1,0 +1,15 @@
+{
+    "users": [
+        {
+            "user1": 124124124141414
+        },
+        {
+            "friend": 129419248912489124
+        },
+        {
+            "cat": 2141249124818414
+        }
+    ],
+    "default_mode": "image",
+    "default_model": "chatgpt-4o-latest"
+}

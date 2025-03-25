@@ -1,3 +1,5 @@
 myenv/*
 test.py
 user_data/*
+.env
+config.json
