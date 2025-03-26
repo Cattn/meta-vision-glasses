@@ -267,7 +267,7 @@ async def main():
         browser = await p.chromium.launch_persistent_context(
             user_data_dir=user_data_dir,
             channel='chrome',
-            args=["--profile-directory=Profile 1", "--start-maximized"],
+            args=[f"--profile-directory=Profile {config['chrome_profile']}", "--start-maximized"],
             headless=False,
             no_viewport=True
         )
@@ -276,7 +276,7 @@ async def main():
         global_browser = browser
         
         page = browser.pages[0] if browser.pages else await browser.new_page()
-        await page.goto("https://www.messenger.com/t/9293726437413424")
+        await page.goto(config["messenger_link"])
         await page.wait_for_load_state('load')
 
         image_queue = []

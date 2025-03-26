@@ -11,5 +11,7 @@
         }
     ],
     "default_mode": "image",
-    "default_model": "chatgpt-4o-latest"
+    "default_model": "chatgpt-4o-latest",
+    "chrome_profile": "1",
+    "messenger_link": "https://www.messenger.com/t/1241414182481481"
 }
