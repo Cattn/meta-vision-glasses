@@ -1,5 +1,3 @@
-mouse
-pyautogui
 openai
 asyncio
 pytest-playwright
@@ -9,3 +7,4 @@ pydub
 dotenv
 google
 google.genai
+discord.py-self

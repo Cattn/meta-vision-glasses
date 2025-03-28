@@ -2,15 +2,12 @@ import os
 import asyncio
 import aiohttp
 import time
-import random
 import json
 import tempfile
 import re
-import mouse 
 import base64
 import traceback
 import aiofiles
-import pyautogui
 from dotenv import load_dotenv
 from openai import OpenAI
 from playwright.async_api import async_playwright
@@ -31,38 +28,28 @@ model = config["default_model"]
 
 client = OpenAI(api_key=os.getenv("API_KEY"))
 
-# todo: rewrite nav, exit, send to use focus/playwright
-def nav_to_image():
-    mouse.move("635", "850", True, 0.3)
-    mouse.click()
-    time.sleep(0.5)
-
-def exit_image():
-    mouse.move("100", "300", True, 0.2)
-    mouse.click()
-
-def send_message(message):
+async def send_message(message):
     global mode
+    global global_browser
     time.sleep(1.5)
-
-    pyautogui.click(x=850, y=1020)  
-    time.sleep(0.4)
+    
+    page = global_browser.pages[0]
 
     if mode == "discord":
-        pyautogui.write(message, interval=0.02)
-        pyautogui.press('enter')
+        div = await page.query_selector('.markup__75297.editor__1b31f.slateTextArea_ec4baf.fontSize16Padding__74017')
+        if div:
+            await div.click()
+            await div.fill(message, force=True)
+            await div.press('Enter')
         return
 
-    lines = message.split('\n')
-    for i, line in enumerate(lines):
-        if line:
-            pyautogui.write(line, interval=random.uniform(0.0005, 0.001))
-        if i < len(lines) - 1:
-            pyautogui.hotkey('shift', 'enter')
-            time.sleep(0.003)
-
-    pyautogui.press('enter')
-    time.sleep(1)
+    div = await page.query_selector('.xzsf02u.x1a2a7pz.x1n2onr6.x14wi4xw.x1iyjqo2.x1gh3ibb.xisnujt.xeuugli.x1odjw0f.notranslate')
+    if div:
+        await div.click()
+        await div.fill(message)
+        await div.press('Enter')
+    else:
+        print("Div not found")
 
 async def send_disc_message(person, message):
     print("send_disc_message called")
@@ -75,19 +62,16 @@ async def send_disc_message(person, message):
     user_urls = {user: str(user_id) for entry in config["users"] for user, user_id in entry.items()}
 
     if person not in user_urls:
-        print(f"Unknown recipient: {person}")
+        send_message(f"Unknown recipient: {person}")
         await disc_page.close()
         return
     
     await disc_page.goto(f"https://discord.com/channels/@me/{user_urls[person]}")
     await disc_page.wait_for_load_state('domcontentloaded')
     
-    await asyncio.sleep(2)
-    
-    pyautogui.click(x=850, y=1020)  
-    time.sleep(0.5)
+    await asyncio.sleep(2.5)
 
-    send_message(message)
+    await send_message(message)
     await asyncio.sleep(1)
     await disc_page.close()
 
@@ -138,18 +122,6 @@ async def handle_command(command):
     except Exception:
         print("Failed to process command")
 
-
-async def get_image_url(page):
-    print("Getting image source")
-    await nav_to_image(page)
-    await asyncio.sleep(1.5)
-
-    img_element = await page.query_selector('img[src*="https"]')
-    img_url = await img_element.get_attribute('src') if img_element else None
-
-    await exit_image(page)
-    return img_url
-
 async def process_image(latest_image, seen_images, text):
     global mode
     global last_image_url
@@ -184,7 +156,7 @@ async def process_image(latest_image, seen_images, text):
                 }
             ],
         )
-        send_message(completion.choices[0].message.content)
+        await send_message(completion.choices[0].message.content)
         return
     if mode == "text":
         print("running: " + text)
@@ -206,7 +178,7 @@ async def process_image(latest_image, seen_images, text):
                 }
             ],
         )
-        send_message(completion.choices[0].message.content)
+        await send_message(completion.choices[0].message.content)
         return
     
 async def process_audio(latest_audio, seen_audios):
@@ -252,7 +224,7 @@ async def process_audio(latest_audio, seen_audios):
                 ]
             )
 
-            send_message(completion.choices[0].message.content)
+            await send_message(completion.choices[0].message.content)
 
         except Exception as e:
             print(f"Error during API call: {e}")
@@ -284,7 +256,7 @@ async def process_video(latest_video, seen_videos):
             client = genai.Client(api_key=os.environ.get("GEM_KEY"))
             uploaded_file = client.files.upload(file=video_path)
 
-            send_message("Processing video...")
+            await send_message("Processing video...")
             while uploaded_file.state.name == "PROCESSING":
                 time.sleep(5)
                 uploaded_file = client.files.get(name=uploaded_file.name)
@@ -312,7 +284,7 @@ async def process_video(latest_video, seen_videos):
                 contents=contents,
             )
 
-            send_message(response.text)
+            await send_message(response.text)
 
         except Exception as e:
             print(f"Error during video processing: {e}")
