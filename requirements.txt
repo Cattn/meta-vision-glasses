@@ -7,3 +7,5 @@ aiohttp
 aiofiles
 pydub
 dotenv
+google
+google.genai

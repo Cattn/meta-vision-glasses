@@ -16,6 +16,8 @@ from openai import OpenAI
 from playwright.async_api import async_playwright
 import html
 from pydub import AudioSegment
+from google import genai
+from google.genai import types
 
 load_dotenv()
 
@@ -259,6 +261,63 @@ async def process_audio(latest_audio, seen_audios):
         finally:
             os.remove(temp_audio_path)
             os.remove(temp_converted_path)
+            
+async def process_video(latest_video, seen_videos):
+    if latest_video not in seen_videos:
+        seen_videos.add(latest_video)
+
+        async with aiohttp.ClientSession() as session:
+            async with session.get(latest_video) as response:
+                if response.status == 200:
+                    video_data = await response.read()
+                else:
+                    print(f"Failed to download video: {response.status}")
+                    return
+
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_video_file:
+            temp_video_file.write(video_data)
+            video_path = temp_video_file.name
+
+        try:
+            client = genai.Client(api_key=os.environ.get("GEM_KEY"))
+            uploaded_file = client.files.upload(file=video_path)
+
+            send_message("Processing video...")
+            while uploaded_file.state.name == "PROCESSING":
+                time.sleep(5)
+                uploaded_file = client.files.get(name=uploaded_file.name)
+
+            contents = [
+                types.Content(
+                    role="user",
+                    parts=[
+                        types.Part.from_text(text="""Analyze the following video, giving a concise description of what happens in it, describing any relevant characters, and giving some incisive facts"""),
+                    ],
+                ),
+                types.Content(
+                    role="user",
+                    parts=[
+                        types.Part.from_uri(
+                            file_uri=uploaded_file.uri,
+                            mime_type=uploaded_file.mime_type,
+                        ),
+                    ],    
+                ),
+            ]
+
+            response = client.models.generate_content(
+                model="gemini-2.5-pro-exp-03-25",
+                contents=contents,
+            )
+
+            send_message(response.text)
+
+        except Exception as e:
+            print(f"Error during video processing: {e}")
+            traceback.print_exc()
+
+        finally:
+            os.remove(video_path)
 
 async def main():
     user_data_dir = os.path.join(os.environ['USERPROFILE'], 'AppData', 'Local', 'Google', 'Chrome', 'User Data')
@@ -285,6 +344,9 @@ async def main():
         
         audio_queue = []
         seen_audios = set()
+        
+        video_queue = []
+        seen_videos = set()
 
         def is_valid_image_url(url):
             return (
@@ -301,6 +363,12 @@ async def main():
                 "audioclip" in url and
                 "dl=1" in url
         )
+            
+        def is_valid_Video_url(url):
+            return (
+                url.startswith("https://video-mia3-1.xx.fbcdn.net/v/") and
+                "dl=1" in url
+            )
 
         async def on_request(request):
             nonlocal request_processing_enabled
@@ -320,9 +388,17 @@ async def main():
                 audio_queue.append(url)
                 if len(audio_queue) > 5: 
                     audio_queue.pop(0)
-
+                    
                 latest_audio = audio_queue[-1]
                 await process_audio(latest_audio, seen_audios)
+                
+            if is_valid_Video_url(url):
+                video_queue.append(url)
+                if len(video_queue) > 5: 
+                    video_queue.pop(0)
+                    
+                latest_video = video_queue[-1]
+                await process_video(latest_video, seen_videos)
 
         page.on("request", lambda request: asyncio.create_task(on_request(request)))
 
