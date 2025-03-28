@@ -26,8 +26,8 @@ Let your glasses see for you! This tool allows you to get responses from images,
 Create a `.env` file in the root directory and add your OpenAI API key and Gemini API key:
 
 ```env
-API_KEY=YOUR_OPENAI_API_KEY
-GEM_KEY=YOUR_GEMINI_API_KEY
+API_KEY="YOUR_OPENAI_API_KEY"
+GEM_KEY="YOUR_GEMINI_API_KEY"
 ```
 
 The program will automatically load these keys from the `.env` file.
