@@ -301,7 +301,7 @@ async def main():
             user_data_dir=user_data_dir,
             channel='chrome',
             args=[f"--profile-directory=Profile {config['chrome_profile']}", "--start-maximized"],
-            headless=False,
+            headless=True,
             no_viewport=True
         )
 
