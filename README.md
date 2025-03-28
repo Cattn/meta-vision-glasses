@@ -38,6 +38,7 @@ The program will automatically load these keys from the `.env` file.
 2. Depending on the order of creation (e.g., Profile 1 = first extra created), update the `chrome_profile` setting accordingly.
 3. Log in to Discord via [discord.com/app](https://discord.com/app) with your desired account.
 4. Log in to Messenger with the desired bot account.
+5. **You still need to set up a user profile by logging in, but the browser will no longer need to remain open in the foreground.**
 
 ### 3️⃣ Configuration File
 
@@ -74,13 +75,13 @@ Start the program using:
 py main.py
 ```
 
-Ensure your device remains on this screen. Future updates will include full headless support.
+The program now supports full headless mode! The browser will no longer need to remain open in the foreground.
 
 ---
 
 ## 📢 Usage
 
-### 🎙 Communicating with ChatGPT
+### 🎧 Communicating with ChatGPT
 
 1. **Sending an Image:**
    - Say: *"Hey Meta, send a picture to [Account Name]"*.
@@ -137,12 +138,12 @@ switch mode to {mode}
 
 ## ⚠ Limitations & Planned Fixes
 
-### 🖱 Mouse Dependency
+### 🖱 Discord Feature Temporarily Disabled
 
-- The program currently requires mouse access for certain elements.
-- Future updates will remove this requirement, allowing for full headless operation.
+- Due to the recent update enabling full headless mode, the Discord feature is temporarily non-functional.
+- A future update will restore this feature.
 
-### 🔄 Chrome Restriction
+### ✖️ Chrome Restriction
 
 - You **must close all instances of Chrome** using the designated profile before running the script.
 
