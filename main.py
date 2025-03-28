@@ -266,6 +266,8 @@ async def process_video(latest_video, seen_videos):
     if latest_video not in seen_videos:
         seen_videos.add(latest_video)
 
+        print("got video")
+
         async with aiohttp.ClientSession() as session:
             async with session.get(latest_video) as response:
                 if response.status == 200:
@@ -291,7 +293,7 @@ async def process_video(latest_video, seen_videos):
                 types.Content(
                     role="user",
                     parts=[
-                        types.Part.from_text(text="""Analyze the following video, giving a concise description of what happens in it, describing any relevant characters, and giving some incisive facts"""),
+                        types.Part.from_text(text="""Give a rundown of what’s happening in this video in a way that feels natural and engaging. Focus on the key moments, describe any notable characters or details that stand out, and throw in any interesting insights that make it more compelling. Keep it brief unless the video is on the longer side—then, take the time to do it justice. And if the location is clear, go ahead and mention it, but don’t force a guess if it’s not obvious."""),
                     ],
                 ),
                 types.Content(
@@ -366,7 +368,9 @@ async def main():
             
         def is_valid_Video_url(url):
             return (
-                url.startswith("https://video-mia3-1.xx.fbcdn.net/v/") and
+                url.startswith("https://video-mia3-1.xx.fbcdn.net/v/") or
+                url.startswith("https://video-mia3-3.xx.fbcdn.net/v/") or
+                url.startswith("https://video-mia3-2.xx.fbcdn.net/v/") and
                 "dl=1" in url
             )
 
