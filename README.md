@@ -55,8 +55,6 @@ py main.py
 ## 📢 Usage
 
 ### 🎧 Interfacing with the AI/Bot
-
-1. **Sending an Image:**
    - Say: *"Hey Meta, send a picture to [Account Name]"*.
    - Confirm the name.
    - Optionally, say: *"Hey Meta, read out my message"* to hear the response.
