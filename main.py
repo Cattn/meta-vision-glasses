@@ -256,7 +256,7 @@ async def process_video(latest_video, seen_videos):
             client = genai.Client(api_key=os.environ.get("GEM_KEY"))
             uploaded_file = client.files.upload(file=video_path)
 
-            await send_message("Processing video...")
+            await send_message("Processing video: " + uploaded_file.name + "..." + "This may take a moment...")
             while uploaded_file.state.name == "PROCESSING":
                 time.sleep(5)
                 uploaded_file = client.files.get(name=uploaded_file.name)
@@ -265,7 +265,7 @@ async def process_video(latest_video, seen_videos):
                 types.Content(
                     role="user",
                     parts=[
-                        types.Part.from_text(text="""Give a rundown of what’s happening in this video in a way that feels natural and engaging. Focus on the key moments, describe any notable characters or details that stand out, and throw in any interesting insights that make it more compelling. Keep it brief unless the video is on the longer side—then, take the time to do it justice. And if the location is clear, go ahead and mention it, but don’t force a guess if it’s not obvious."""),
+                        types.Part.from_text(text="""Give a rundown of what’s happening in this video in a way that feels natural and engaging. Focus on the key moments, describe any notable characters or details that stand out, and throw in any interesting insights that make it more compelling. Keep it brief unless the video is on the longer side—then, take the time to do it justice. And if the location is clear, go ahead and mention it, but don’t force a guess if it’s not obvious. If you see any questions or problems in the video, attempt to give the answer in a good format. Give all answers. If it's a piece of media, try and identify and state what it is. If there is audio playing try to figure out what song or sound it is and describe/name it. If you cannot find any of these components, then simply do not mention then and write the rest as normal."""),
                     ],
                 ),
                 types.Content(

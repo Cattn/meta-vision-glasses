@@ -17,8 +17,6 @@ Let your glasses see for you! This tool allows you to get responses from images,
    playwright install
    ```
 
----
-
 ## 🛠 Setup
 
 ### 1️⃣ API Keys
@@ -35,37 +33,12 @@ The program will automatically load these keys from the `.env` file.
 ### 2️⃣ Creating a New Chrome Profile for Playwright
 
 1. Create a new Chrome profile dedicated to this application.
-2. Depending on the order of creation (e.g., Profile 1 = first extra created), update the `chrome_profile` setting accordingly.
-3. Log in to Discord via [discord.com/app](https://discord.com/app) with your desired account.
-4. Log in to Messenger with the desired bot account.
-5. **You still need to set up a user profile by logging in, but the browser will no longer need to remain open in the foreground.**
+2. Log in to Discord via [discord.com/app](https://discord.com/app) with your desired account.
+3. Log in to Messenger with the desired account for the program.
 
 ### 3️⃣ Configuration File
 
-In your `config.json`, define users for quick access:
-
-```json
-{
-    "users": [
-        { "user1": 124124124141414 },
-        { "friend": 129419248912489124 },
-        { "cat": 2141249124818414 }
-    ],
-    "default_mode": "image",
-    "default_model": "chatgpt-4o-latest",
-    "chrome_profile": "1",
-    "messenger_link": "https://www.messenger.com/t/1241414182481481"
-}
-```
-
-- **User Nickname** (e.g., `friend`) = The name used to refer to them in voice commands.
-- **Channel ID** = The direct message channel ID (not the user ID).
-- **Default Mode** = Choose which mode you would like to be the default mode on startup.
-- **Default Model** = The default AI model to use.
-- **Chrome Profile** = The profile number for Playwright.
-- **Messenger Link** = The Messenger conversation URL where messages will be sent.
-
----
+Run ``genconfig.py`` to generate a config based on a series of questions.
 
 ## 🏃 Running the Program
 
@@ -75,13 +48,13 @@ Start the program using:
 py main.py
 ```
 
-The program now supports full headless mode! The browser will no longer need to remain open in the foreground.
+> There won't be much useful output in the terminal.
 
 ---
 
 ## 📢 Usage
 
-### 🎧 Communicating with ChatGPT
+### 🎧 Interfacing with the AI/Bot
 
 1. **Sending an Image:**
    - Say: *"Hey Meta, send a picture to [Account Name]"*.
@@ -89,6 +62,11 @@ The program now supports full headless mode! The browser will no longer need to 
    - Optionally, say: *"Hey Meta, read out my message"* to hear the response.
 
 ### 🎤 Voice Notes (Audio Mode)
+   - Say: *"Hey Meta, send a voice note to [Account Name]"*.
+   - Confirm the name.
+   - Optionally, say: *"Hey Meta, read out my message"* to hear the response.
+
+**Note:**
 
 - Any voice note sent (regardless of mode) will be processed by the preset model: `gpt-4o-mini-audio-preview-2024-12-17`.
 - This model **cannot** be changed at this time.
@@ -99,7 +77,6 @@ The program now supports full headless mode! The browser will no longer need to 
 - Ensure `GEM_KEY` is added to your `.env` file for this feature to function properly.
 - The AI will generate insights, summaries, or descriptions based on the video content.
 
----
 
 ## 📝 Commands
 
@@ -130,11 +107,14 @@ switch mode to {mode}
 
 **Example Workflow:**
 
-1. `switch mode to discord`
-2. Send an image in chat.
-3. `send image to {nickname}`
+1. Say: *"Hey Meta, send a message to [Account Name]"*.
+2. Say: *"switch mode to discord"*.
+3. Say: *"Hey meta, send an image to [Account Name]"*.
+4. Say: *"Hey Meta, send a message to [Account Name]"*.
+5. Say: *"send image to [User]"*.
 
----
+> Unfortunately, there isn't much I can do to shorten this workflow. You can however, just take the photo with your glasses, and send it by typing the commands. The ability to use your voice for the commands is intended for users who need full autonomy from their phone when using this program.
+
 
 ## ⚠ Limitations & Planned Fixes
 
@@ -145,18 +125,15 @@ switch mode to {mode}
 
 ### ✖️ Chrome Restriction
 
-- You **must close all instances of Chrome** using the designated profile before running the script.
+- You **must close all instances of Chrome** before running the script. You can however use other browsers.
 
----
 
-## 📌 Extra Features
+## 📌 Extra Info
 
-- **Custom AI Names:** Create a group chat with the AI, remove extra members, and rename it. Now you can say:
+- **Custom AI Names:** Create a group chat with your bot account, remove extra members, and rename it. Now you can say:
   ```text
   Hey Meta, send a picture to [Group Name]
   ```
-
----
 
 ## 👨‍💻 Credits
 
